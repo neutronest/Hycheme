@@ -6,13 +6,14 @@ import Text.ParserCombinators.Parsec hiding (spaces)
 import Control.Monad.Except
 
 import Hyparser
+import LispVal
+
 
 readExpr :: String -> String
-readExpr input = case parse (spaces >> symbol) "lisp" input of
+readExpr input = case parse parseExpr "lisp" input of
     Left err -> "No match: " ++ show err
     Right val -> "Found value"
 
-
 main :: IO()
 main =  do args <- getArgs
-           putStrLn (readExpr (args !! 0 ))
+           putStrLn (readExpr (args !! 0 )) 
