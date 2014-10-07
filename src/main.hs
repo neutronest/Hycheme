@@ -8,14 +8,18 @@ import Control.Monad.Except
 import Hyparser
 import LispVal
 import Eval
+import Hyerror
 
 
-readExpr :: String -> LispVal
+readExpr :: String -> ThrowsError LispVal
 readExpr input = case parse parseExpr "lisp" input of
-    Left err -> String $ "No match: " ++ show err
-    Right val -> val
+    Left err -> throwError $ Parser err
+    Right val -> return val
 
 -- change our main function to read an expression, 
 -- evaluate it, convert it to a string, and print it out.
 main :: IO()
-main = getArgs >>= putStrLn . show . eval . readExpr . (!! 0)
+main = do
+       args <- getArgs
+       evaled <- return $ liftM show $ readExpr (args !! 0) >>= eval
+       putStrLn $ extractValue $ trapError evaled
